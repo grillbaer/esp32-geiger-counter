@@ -4,6 +4,7 @@
 #include "GeigerData.h"
 
 void initIngest();
+void deinitIngest();
 void ingest(GeigerData &geigerData, uint16_t intervalSamples);
 
 #endif /* INGEST_H_ */

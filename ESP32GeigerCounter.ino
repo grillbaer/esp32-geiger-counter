@@ -169,6 +169,8 @@ void loop() {
 			ingestCountdown = ingestInterval;
 			ingest(geigerData, ingestInterval);
 		}
+	} else {
+		deinitIngest();
 	}
 
 	// determine current value, average 6 seconds

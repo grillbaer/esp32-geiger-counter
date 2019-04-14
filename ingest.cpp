@@ -2,44 +2,53 @@
 
 #include "GeigerData.h"
 
-// WiFi and thingspeak credentials:
-//const char *wifiSsid = "...";
-//const char *wifiPassword = "...";
-//const char *thingspeakApiKey = "...";
 #include "credentials.h"
 
 const char *thingsPeakUrl = "api.thingspeak.com";
 
-void connect() {
-	wl_status_t status = WL_DISCONNECTED;
-
-	while (status != WL_CONNECTED) {
-		WiFi.begin(wifiSsid, wifiPassword);
-		Serial.print("Connecting to WiFi '");
+bool connect() {
+	uint16_t retries = 3;
+	while (WiFi.status() != WL_CONNECTED && (--retries) > 0) {
+		Serial.print("Trying to connect to ");
 		Serial.print(wifiSsid);
-		Serial.println("' ...");
-		uint16_t waitRemaining = 10;
-		while ((status = WiFi.status()) != WL_CONNECTED && waitRemaining > 0) {
-			Serial.print(" status=");
-			Serial.println(status);
+		Serial.print(" ... ");
+		WiFi.begin(wifiSsid, wifiPassword);
+		uint16_t waitRemaining = 8;
+		while (WiFi.status() != WL_CONNECTED && (--waitRemaining) > 0) {
 			delay(500);
-			waitRemaining--;
+		}
+		if (WiFi.status() == WL_CONNECTED) {
+			Serial.println("successful");
+			return true;
+		} else {
+			Serial.print("failed status=");
+			Serial.println(WiFi.status());
 		}
 	}
 
-	Serial.println("WiFi connected!");
+	return WiFi.status() == WL_CONNECTED;
 }
 
 void initIngest() {
 	connect();
 }
 
+void deinitIngest() {
+	if (WiFi.status() == WL_CONNECTED) {
+		Serial.println("Disconnecting WiFi");
+		WiFi.disconnect(true, true);
+	}
+}
+
 void ingest(GeigerData &geigerData, uint16_t intervalSamples) {
+	if (!connect())
+		return;
+
 	WiFiClient client;
 	if (!client.connect(thingsPeakUrl, 80)) {
-		Serial.print("Connecting to '");
+		Serial.print("Connecting to ");
 		Serial.print(thingsPeakUrl);
-		Serial.println("' failed");
+		Serial.println(" failed");
 	} else {
 
 		const uint32_t pulses = geigerData.getPreviousPulses(1,
@@ -52,9 +61,13 @@ void ingest(GeigerData &geigerData, uint16_t intervalSamples) {
 				intervalSamples);
 
 		const String content = "api_key=" + String(thingspeakApiKey)
-				+ "&field1=" + String(cpm) + "&field2=" + String(uSph);
+				+ "&field1=" + String(cpm) + "&field2=" + String(uSph, 3);
 
-		Serial.println("Ingesting");
+		Serial.print("Ingesting cpm=");
+		Serial.print(cpm);
+		Serial.print(" uSph=");
+		Serial.print(uSph, 3);
+		Serial.print(" ... ");
 
 		client.print("POST /update HTTP/1.1\n");
 
@@ -70,9 +83,16 @@ void ingest(GeigerData &geigerData, uint16_t intervalSamples) {
 		client.print("\n\n");
 
 		client.print(content);
-		delay(1000);
 
-		Serial.print("Response: ");
+		uint16_t timeout = 40;
+		while (client.available() == 0 && (--timeout) > 0) {
+			delay(50);
+		}
+		if (client.available() == 0) {
+			Serial.println("failed (no response)");
+		}
+
+		Serial.println("response:");
 		while (client.available()) {
 			char c = client.read();
 			Serial.write(c);
