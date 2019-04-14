@@ -1,19 +1,27 @@
 # IoT Geiger counter with ESP32, OLED display and thingspeak channel
 
 - Low power mode for battery power supply with OLED display and click sounds, WiFi off
-- WiFi mode for thingspeak data upload every minute using WiFi (channel https://thingspeak.com/channels/758223)
+- WiFi mode for thingspeak data upload every minute using WiFi => https://thingspeak.com/channels/758223
 [![https://thingspeak.com/channels/758223](media/thingspeak.png)](https://thingspeak.com/channels/758223)
 ![Circuit Board](media/geiger-counter-pcb.jpg)
+
+Feel free to use this project as a base for your own projects AT YOUR OWN RISK!
 
 # Hardware
 
 - Russian Geiger counter tube STS-6 at 400 V with ~5 MOhm
-- High voltage circuit from ArnoR at mikrocontroller.net https://www.mikrocontroller.net/topic/380666, schematic https://www.mikrocontroller.net/attachment/273334/HystereseStepUpTLC555-2.png
-- ~400 µs pulses generation using voltage divider, darlington transistor and TLC 555 timer
-- ESP 32 board Wemos Lolin32
+- High voltage circuit from ArnoR at mikrocontroller.net https://www.mikrocontroller.net/topic/380666, schematic https://www.mikrocontroller.net/attachment/273334/HystereseStepUpTLC555-2.png. *Keep the high-voltage capacitor small to avoid dangerous charges!*
+- ~400 µs pulse generation using voltage divider, darlington transistor and TLC 555 timer
+- ESP32 board Wemos Lolin32
 - OLED 128x64 with controller SH1106 at I2C
-- Voltage supply from USB or power supply or 3x1.5V AAA batteries, works from 3.0 V up to 5.0 V
+- Voltage supply from either USB or power supply or 3x 1.5V AAA batteries, circuit works from 3.0 V up to 5.0 V
+- Pulse input is expected at GPIO 18 (high pulses with at least about 250 µs length)
+- Switch for WiFi mode is expected at GPIO 4 (low=WiFi mode, high=low-power mode)
+- OLED I2C bus is expected at GPIO 22 (SCK) and 21 (SDA)
 
 # Software
 
 - Eclipse sloeber project using Arduino library, ESP-IDF for sleep functions and u8g2 for display output
+- Low-power mode uses light sleep, a wake-up for each signal pulse change and a wake-up every 1000 ms to update pulse statistics and OLED. This results in about 90% sleep. Could be improved using deep sleep and ULP. However, light sleep is already quite good and much easier.
+- WiFi mode uses no sleep and simple interrupts for pulse counting. Pulse statistics and OLED are updated every 1000 ms, data is sent to thingspeak every 60 s.
+- Credentials (WiFi SSID, password, thingspeak channel key) are only declared in {credentials.h} and must be defined in a {credentials.cpp}
