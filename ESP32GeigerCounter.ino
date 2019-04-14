@@ -1,19 +1,19 @@
 #include "Arduino.h"
-#include "U8g2lib.h"
 
 #include "driver/pcnt.h"
 #include "driver/gpio.h"
 #include "driver/rtc_io.h"
 
+#include "display.h"
+#include "ingest.h"
 #include "GeigerData.h"
 
 // ~400µs high pulses from Geiger tube on GPIO 18
 #define PULSE_PIN 18
 #define PULSE_GPIO GPIO_NUM_18
 
-// OLED display 128x64 with SH1106 controller
-// on I2C GPIOs SCL 22 and SDA 21
-U8G2_SH1106_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, 22, 21);
+// switch input for WiFi on (low) and off (high)
+#define WIFI_SWITCH_PIN 4
 
 // Keep 600 samples of 1s in history (10 minutes),
 // calculate radiation for russian STS-6 ("CTC-6") Geiger tube
@@ -32,12 +32,15 @@ const uint32_t sampleMicros = geigerData.sampleSeconds * 1000000;
 // Absolute sample interval start micros
 uint32_t sampleStart = 0;
 
+const int16_t ingestInterval = 60;
+int16_t ingestCountdown;
+
 void setup() {
 	Serial.begin(921600);
+	Serial.println("Starting!");
 
-	// high I2c clock still results in about 100ms buffer transmission to OLED:
-	u8g2.setBusClock(1000000);
-	u8g2.begin();
+	// OLED
+	initDisplay();
 
 	// blinky
 	pinMode(LED_BUILTIN, OUTPUT);
@@ -45,8 +48,16 @@ void setup() {
 	// Geiger pulse input
 	pinMode(PULSE_PIN, INPUT);
 
+	// WiFi switch input
+	pinMode(WIFI_SWITCH_PIN, INPUT_PULLUP);
+
+	if (wifiSwitchOn()) {
+		initIngest();
+	}
+
 	// initialize sample start
 	sampleStart = micros();
+	ingestCountdown = ingestInterval;
 }
 
 // interrupt handler
@@ -55,16 +66,29 @@ void pulse() {
 }
 
 uint32_t calcRemainingWait() {
-	return sampleMicros - (micros() - sampleStart);
+	const uint32_t remaining = sampleMicros - (micros() - sampleStart);
+	return remaining > sampleMicros ? 0 : remaining;
 }
 
-void loop() {
+boolean wifiSwitchOn() {
+	return digitalRead(WIFI_SWITCH_PIN) == 0;
+}
 
-	// blinky
+uint16_t takeSampleNoSleep() {
+	attachInterrupt(PULSE_PIN, pulse, RISING);
 
-	digitalWrite(LED_BUILTIN, blinky);
-	blinky = !blinky;
+	int32_t remainingWait = calcRemainingWait();
+	delayMicroseconds(remainingWait);
+	sampleStart = micros();
+	noInterrupts();
+	const int16_t pulses = intPulseCount;
+	intPulseCount = 0;
+	interrupts();
 
+	return pulses;
+}
+
+uint16_t takeSampleLowPower() {
 	// To save battery power, use light sleep as much as possible.
 	// During light sleep, no counters or interrupts are working.
 	// Therefore simply wake up on each pulse signal change. This
@@ -123,8 +147,29 @@ void loop() {
 	pulseCount = 0;
 	intPulseCount = 0;
 
+	return pulses;
+}
+
+void loop() {
+
+	// blinky
+
+	digitalWrite(LED_BUILTIN, blinky);
+	blinky = !blinky;
+
+	const uint16_t pulses =
+			wifiSwitchOn() ? takeSampleNoSleep() : takeSampleLowPower();
+
 	geigerData.addPulses(pulses);
 	geigerData.nextSample();
+
+	if (wifiSwitchOn()) {
+		ingestCountdown--;
+		if (ingestCountdown <= 0) {
+			ingestCountdown = ingestInterval;
+			ingest(geigerData, ingestInterval);
+		}
+	}
 
 	// determine current value, average 6 seconds
 	// because this is very near to the 5 seconds history
@@ -152,82 +197,5 @@ void loop() {
 	Serial.print(" ");
 	Serial.println(uSphStr);
 
-	// render cpm and µS/h displays
-
-	u8g2.clearBuffer();
-	uint16_t y = 14;
-	uint16_t xCpm = 56;
-	uint16_t xUSph = 127;
-	u8g2.setFont(u8g2_font_crox4hb_tr);
-
-	u8g2_uint_t w = u8g2.getStrWidth(uSphStr);
-	u8g2.setCursor(xUSph - w, y);
-	u8g2.print(uSphStr);
-
-	w = u8g2.getStrWidth(cpmStr);
-	u8g2.setCursor(xCpm - w, y);
-	u8g2.print(cpmStr);
-
-	y = 21;
-	u8g2.setFont(u8g2_font_4x6_tf);
-	w = u8g2.getStrWidth("µS/h");
-	u8g2.setCursor(xUSph - w, y);
-	u8g2.print("µS/h");
-	w = u8g2.getStrWidth("cnt/min");
-	u8g2.setCursor(xCpm - w, y);
-	u8g2.print("cnt/min");
-
-	// history bar graph
-
-	const uint16_t bars = 120;
-	const uint16_t maxBarHeight = 40;
-	const uint16_t samplesPerBar = geigerData.sampleCount / bars;
-	const uint16_t barsPerMinute = 60
-			/ (samplesPerBar * geigerData.sampleSeconds);
-
-	// determine max value for y scale:
-	uint16_t offset = geigerData.getCurrentSample() % samplesPerBar + 1;
-	uint32_t maxPulses = 0;
-	for (int16_t i = 0; i < bars - 1; i++) {
-		const uint32_t prevPulses = geigerData.getPreviousPulses(offset,
-				samplesPerBar);
-		if (prevPulses > maxPulses)
-			maxPulses = prevPulses;
-		offset += samplesPerBar;
-	}
-	const float maxUSph = geigerData.toMicroSievertPerHour(maxPulses,
-			samplesPerBar);
-	const float uSphPerPixel = maxUSph > 40. ? 10. : maxUSph > 4. ? 1. :
-								maxUSph > 0.4 ? 0.1 : 0.01;
-
-	// labels and grid
-	u8g2.setFont(u8g2_font_4x6_tn);
-	char s[10];
-	for (uint16_t i = 10; i <= maxBarHeight; i += 10) {
-		u8g2.setCursor(0, 63 - i + 3);
-		if (uSphPerPixel >= 0.1)
-			sprintf(s, "%.0f", i * uSphPerPixel);
-		else
-			sprintf(s, ".%.0f", i * uSphPerPixel * 10);
-		u8g2.print(s);
-		for (int16_t x = 127 - barsPerMinute; x >= 8; x -= barsPerMinute) {
-			u8g2.drawPixel(x, 63 - i);
-		}
-	}
-
-	// bars
-	offset = geigerData.getCurrentSample() % samplesPerBar + 1;
-	for (int16_t i = 0; i < bars - 1; i++) {
-		const uint32_t prevPulses = geigerData.getPreviousPulses(offset,
-				samplesPerBar);
-		const float uSph = geigerData.toMicroSievertPerHour(prevPulses,
-				samplesPerBar);
-		offset += samplesPerBar;
-		uint16_t barHeight = 1 + (int) (uSph / uSphPerPixel);
-		if (barHeight > 40)
-			barHeight = 40;
-		u8g2.drawVLine(127 - i, 63 - barHeight, barHeight);
-	}
-
-	u8g2.sendBuffer();
+	updateDisplay(geigerData, uSphStr, cpmStr);
 }

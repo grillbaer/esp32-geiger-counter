@@ -62,6 +62,11 @@
 			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/U8g2/2.25.10</locationURI>
 		</link>
 		<link>
+			<name>libraries/WiFi</name>
+			<type>2</type>
+			<location>C:/dev/git/arduino-esp32/libraries/WiFi</location>
+		</link>
+		<link>
 			<name>libraries/Wire</name>
 			<type>2</type>
 			<location>C:/dev/git/arduino-esp32/libraries/Wire</location>
