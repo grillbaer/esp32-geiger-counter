@@ -1,9 +1,11 @@
 # IoT Geiger Counter with ESP32, OLED Display and Thingspeak Channel
 
+- Measures radioactive gamma and beta radiation with already quite good resolution at the typical low levels of the background radiation (due to the big STS-6 tube)
+- Displays the current counts per minute (CPM), estimated dose equivalent rate in micro-Sievert per hour (µS/h) and 10 minutes history with 5 second resolution as bargraph
+![Circuit Board](media/geiger-counter-pcb.jpg)
 - Low-power mode for use with batteries, OLED display and click sounds on, WiFi off
 - WiFi mode for thingspeak data upload every minute, see https://thingspeak.com/channels/758223
 [![https://thingspeak.com/channels/758223](media/thingspeak.png)](https://thingspeak.com/channels/758223)
-![Circuit Board](media/geiger-counter-pcb.jpg)
 
 Feel free to use this project as a base for your own projects AT YOUR OWN RISK!
 
