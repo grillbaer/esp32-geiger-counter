@@ -1,7 +1,9 @@
 # Geiger counter based on ESP32 with OLED display and thingspeak channel
 
-- Low power mode for battery power supply without WiFi, only with OLED display and click sounds
-- WiFi mode for thingspeak data upload
+- Low power mode for battery power supply with OLED display and click sounds, WiFi off
+- WiFi mode for thingspeak data upload every minute using WiFi
+![Thingspeak View](media/thingspeak.png)
+![Circuit Board](media/geiger-counter-pcb.jpg)
 
 # Hardware
 
@@ -11,8 +13,6 @@
 - ESP 32 board Wemos Lolin32
 - OLED 128x64 with controller SH1106 at I2C
 - Voltage supply from USB or power supply or 3x1.5V AAA batteries, works from 3.0 V up to 5.0 V
-
-![Circuit Board](media/geiger-counter-pcb.jpg)
 
 # Software
 
