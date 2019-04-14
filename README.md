@@ -1,4 +1,4 @@
-# Geiger counter based on ESP32 with OLED display and thingspeak channel
+# IoT Geiger counter with ESP32, OLED display and thingspeak channel
 
 - Low power mode for battery power supply with OLED display and click sounds, WiFi off
 - WiFi mode for thingspeak data upload every minute using WiFi
