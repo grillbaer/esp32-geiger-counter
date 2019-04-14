@@ -1,8 +1,8 @@
 # IoT Geiger counter with ESP32, OLED display and thingspeak channel
 
 - Low power mode for battery power supply with OLED display and click sounds, WiFi off
-- WiFi mode for thingspeak data upload every minute using WiFi
-![Thingspeak View](media/thingspeak.png)
+- WiFi mode for thingspeak data upload every minute using WiFi (channel https://thingspeak.com/channels/758223)
+[![https://thingspeak.com/channels/758223](media/thingspeak.png)](https://thingspeak.com/channels/758223)
 ![Circuit Board](media/geiger-counter-pcb.jpg)
 
 # Hardware
