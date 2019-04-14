@@ -12,6 +12,7 @@
 - OLED 128x64 with controller SH1106 at I2C
 - Voltage supply from USB or power supply or 3x1.5V AAA batteries, works from 3.0 V up to 5.0 V
 
+![Circuit Board](media/geiger-counter-pcb.jpg)
 
 # Software
 
