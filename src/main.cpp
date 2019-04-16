@@ -6,24 +6,6 @@
 #include "ingest.h"
 #include "GeigerData.h"
 
-void setup() ;
-void pulse() ;
-uint32_t calcRemainingWait() ;
-boolean wifiSwitchOn() ;
-uint16_t takeSampleNoSleep() ;
-uint16_t takeSampleLowPower() ;
-void loop() ;
-
-#include "Arduino.h"
-
-#include "driver/pcnt.h"
-#include "driver/gpio.h"
-#include "driver/rtc_io.h"
-
-#include "display.h"
-#include "ingest.h"
-#include "GeigerData.h"
-
 // ~400µs high pulses from Geiger tube on GPIO 18
 #define PULSE_PIN 18
 #define PULSE_GPIO GPIO_NUM_18
@@ -51,7 +33,14 @@ uint32_t sampleStart = 0;
 const int16_t ingestInterval = 60;
 int16_t ingestCountdown;
 
-void setup() {
+void pulse();
+uint32_t calcRemainingWait();
+boolean wifiSwitchOn();
+uint16_t takeSampleNoSleep();
+uint16_t takeSampleLowPower();
+
+void setup()
+{
 	Serial.begin(921600);
 	Serial.println("Starting!");
 
@@ -67,7 +56,8 @@ void setup() {
 	// WiFi switch input
 	pinMode(WIFI_SWITCH_PIN, INPUT_PULLUP);
 
-	if (wifiSwitchOn()) {
+	if (wifiSwitchOn())
+	{
 		initIngest();
 	}
 
@@ -76,97 +66,8 @@ void setup() {
 	ingestCountdown = ingestInterval;
 }
 
-// interrupt handler
-void pulse() {
-	++intPulseCount;
-}
-
-uint32_t calcRemainingWait() {
-	const uint32_t remaining = sampleMicros - (micros() - sampleStart);
-	return remaining > sampleMicros ? 0 : remaining;
-}
-
-boolean wifiSwitchOn() {
-	return digitalRead(WIFI_SWITCH_PIN) == 0;
-}
-
-uint16_t takeSampleNoSleep() {
-	attachInterrupt(PULSE_PIN, pulse, RISING);
-
-	int32_t remainingWait = calcRemainingWait();
-	delayMicroseconds(remainingWait);
-	sampleStart = micros();
-	noInterrupts();
-	const int16_t pulses = intPulseCount;
-	intPulseCount = 0;
-	interrupts();
-
-	return pulses;
-}
-
-uint16_t takeSampleLowPower() {
-	// To save battery power, use light sleep as much as possible.
-	// During light sleep, no counters or interrupts are working.
-	// Therefore simply wake up on each pulse signal change. This
-	// is fast enough for the low frequencies from a Geiger tube
-	// (below 2kHz):
-	// Wake up at end of sample period. Also
-	// wake up on pulse getting high and getting low.
-	// Waking up directly on rising/falling edges is not possible,
-	// so wait until level change.
-	// Switch to interrupt counting while awake for calculations
-	// and display update.
-
-	// stop interrupt (switch to active wakeup counting loop):
-	detachInterrupt(PULSE_PIN);
-
-	int32_t remainingWait = calcRemainingWait();
-	esp_sleep_wakeup_cause_t cause = ESP_SLEEP_WAKEUP_UNDEFINED;
-	while (cause != ESP_SLEEP_WAKEUP_TIMER && remainingWait > 0) {
-
-		if (digitalRead(PULSE_PIN)) {
-			// wait for low pulse start or sample time end
-			esp_sleep_enable_timer_wakeup(remainingWait);
-			gpio_wakeup_enable(PULSE_GPIO, GPIO_INTR_LOW_LEVEL);
-			esp_sleep_enable_gpio_wakeup();
-			esp_light_sleep_start();
-			cause = esp_sleep_get_wakeup_cause();
-		}
-
-		remainingWait = calcRemainingWait();
-		if (cause != ESP_SLEEP_WAKEUP_TIMER && remainingWait > 0) {
-			// wait for high pulse start or sample time end
-			esp_sleep_enable_timer_wakeup(remainingWait);
-			gpio_wakeup_enable(PULSE_GPIO, GPIO_INTR_HIGH_LEVEL);
-			esp_sleep_enable_gpio_wakeup();
-			esp_light_sleep_start();
-			cause = esp_sleep_get_wakeup_cause();
-			if (cause == ESP_SLEEP_WAKEUP_GPIO) {
-				++pulseCount;
-			}
-		}
-
-		remainingWait = calcRemainingWait();
-	}
-
-	// take sample and add to statistics
-
-	sampleStart = micros();
-	const int16_t pulses = pulseCount + intPulseCount;
-	//	Serial.print("pc=");
-	//	Serial.print(pulseCount);
-	//	Serial.print(" ipc=");
-	//	Serial.println(intPulseCount);
-	attachInterrupt(PULSE_PIN, pulse, RISING);
-	interrupts();
-	// reset counters AFTER enabling interrupt to avoid double-counting on high signal
-	pulseCount = 0;
-	intPulseCount = 0;
-
-	return pulses;
-}
-
-void loop() {
+void loop()
+{
 
 	// blinky
 
@@ -174,18 +75,22 @@ void loop() {
 	blinky = !blinky;
 
 	const uint16_t pulses =
-			wifiSwitchOn() ? takeSampleNoSleep() : takeSampleLowPower();
+		wifiSwitchOn() ? takeSampleNoSleep() : takeSampleLowPower();
 
 	geigerData.addPulses(pulses);
 	geigerData.nextSample();
 
-	if (wifiSwitchOn()) {
+	if (wifiSwitchOn())
+	{
 		ingestCountdown--;
-		if (ingestCountdown <= 0) {
+		if (ingestCountdown <= 0)
+		{
 			ingestCountdown = ingestInterval;
 			ingest(geigerData, ingestInterval);
 		}
-	} else {
+	}
+	else
+	{
 		deinitIngest();
 	}
 
@@ -216,4 +121,103 @@ void loop() {
 	Serial.println(uSphStr);
 
 	updateDisplay(geigerData, uSphStr, cpmStr);
+}
+
+// interrupt handler
+void pulse()
+{
+	++intPulseCount;
+}
+
+uint32_t calcRemainingWait()
+{
+	const uint32_t remaining = sampleMicros - (micros() - sampleStart);
+	return remaining > sampleMicros ? 0 : remaining;
+}
+
+boolean wifiSwitchOn()
+{
+	return digitalRead(WIFI_SWITCH_PIN) == 0;
+}
+
+uint16_t takeSampleNoSleep()
+{
+	attachInterrupt(PULSE_PIN, pulse, RISING);
+
+	int32_t remainingWait = calcRemainingWait();
+	delayMicroseconds(remainingWait);
+	sampleStart = micros();
+	noInterrupts();
+	const int16_t pulses = intPulseCount;
+	intPulseCount = 0;
+	interrupts();
+
+	return pulses;
+}
+
+uint16_t takeSampleLowPower()
+{
+	// To save battery power, use light sleep as much as possible.
+	// During light sleep, no counters or interrupts are working.
+	// Therefore simply wake up on each pulse signal change. This
+	// is fast enough for the low frequencies from a Geiger tube
+	// (below 2kHz):
+	// Wake up at end of sample period. Also
+	// wake up on pulse getting high and getting low.
+	// Waking up directly on rising/falling edges is not possible,
+	// so wait until level change.
+	// Switch to interrupt counting while awake for calculations
+	// and display update.
+
+	// stop interrupt (switch to active wakeup counting loop):
+	detachInterrupt(PULSE_PIN);
+
+	int32_t remainingWait = calcRemainingWait();
+	esp_sleep_wakeup_cause_t cause = ESP_SLEEP_WAKEUP_UNDEFINED;
+	while (cause != ESP_SLEEP_WAKEUP_TIMER && remainingWait > 0)
+	{
+
+		if (digitalRead(PULSE_PIN))
+		{
+			// wait for low pulse start or sample time end
+			esp_sleep_enable_timer_wakeup(remainingWait);
+			gpio_wakeup_enable(PULSE_GPIO, GPIO_INTR_LOW_LEVEL);
+			esp_sleep_enable_gpio_wakeup();
+			esp_light_sleep_start();
+			cause = esp_sleep_get_wakeup_cause();
+		}
+
+		remainingWait = calcRemainingWait();
+		if (cause != ESP_SLEEP_WAKEUP_TIMER && remainingWait > 0)
+		{
+			// wait for high pulse start or sample time end
+			esp_sleep_enable_timer_wakeup(remainingWait);
+			gpio_wakeup_enable(PULSE_GPIO, GPIO_INTR_HIGH_LEVEL);
+			esp_sleep_enable_gpio_wakeup();
+			esp_light_sleep_start();
+			cause = esp_sleep_get_wakeup_cause();
+			if (cause == ESP_SLEEP_WAKEUP_GPIO)
+			{
+				++pulseCount;
+			}
+		}
+
+		remainingWait = calcRemainingWait();
+	}
+
+	// take sample and add to statistics
+
+	sampleStart = micros();
+	const int16_t pulses = pulseCount + intPulseCount;
+	//	Serial.print("pc=");
+	//	Serial.print(pulseCount);
+	//	Serial.print(" ipc=");
+	//	Serial.println(intPulseCount);
+	attachInterrupt(PULSE_PIN, pulse, RISING);
+	interrupts();
+	// reset counters AFTER enabling interrupt to avoid double-counting on high signal
+	pulseCount = 0;
+	intPulseCount = 0;
+
+	return pulses;
 }

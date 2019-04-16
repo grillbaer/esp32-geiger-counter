@@ -8,7 +8,8 @@
 const float STS6_CPM_PER_USPH = 875;
 
 // Holds pulse counter history and performs calculations
-class GeigerData {
+class GeigerData
+{
 public:
 	const uint16_t sampleCount;
 	const uint16_t sampleSeconds;
@@ -21,9 +22,8 @@ private:
 	uint16_t prev(uint16_t index);
 
 public:
-
 	GeigerData(uint16_t sampleCount, uint16_t sampleSeconds,
-			float cpm_per_uSph);
+			   float cpm_per_uSph);
 	virtual ~GeigerData();
 
 	virtual void addPulses(uint16_t pulses);
