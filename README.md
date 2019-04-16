@@ -23,7 +23,7 @@ Feel free to use this project as a base for your own projects AT YOUR OWN RISK!
 
 # Software
 
-- Eclipse sloeber project using Arduino library, ESP-IDF for sleep functions and u8g2 for display output
+- PlatformIO project using Arduino library, ESP-IDF for sleep functions and U8g2 for display output
 - Low-power mode uses light sleep, a wake-up for each signal pulse change and a wake-up every 1000 ms to update pulse statistics and OLED. This results in about 90% sleep. Could be improved using deep sleep and ULP. However, light sleep is already quite good and much easier.
 - WiFi mode uses no sleep and simple interrupts for pulse counting. Pulse statistics and OLED are updated every 1000 ms, data is sent to thingspeak every 60 s.
 - Credentials (WiFi SSID, password, thingspeak channel key) are only declared in `credentials.h` and must be defined in a `credentials.cpp`
