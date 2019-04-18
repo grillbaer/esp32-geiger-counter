@@ -5,7 +5,7 @@
 
 // Russion STS-6 ("CTC-6") Geiger tube:
 // N = (2.28-3.42)*10^3 at 0.36 µR/h; Nmax = 6*10^4; Nf = 110
-const float STS6_CPM_PER_USPH = 875;
+const float STS6_CPM_PER_USPH = 825; // 875 is a little bit too low compared to official station
 
 // Holds pulse counter history and performs calculations
 class GeigerData
