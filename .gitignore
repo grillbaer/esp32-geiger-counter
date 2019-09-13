@@ -1,4 +1,5 @@
+.pio
 .pioenvs
 .piolibdeps
 .vscode
-credentials.cpp
+secret_*
