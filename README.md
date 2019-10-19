@@ -40,7 +40,7 @@ This is the raw pulse at point A, about 2 V for 100 µs, then falling back to 0 
 
 ![Raw pulse at point A](media/geiger-signal-raw.png)
 
-Here you can see the formed pulsed at point B, nearly 5 V for 200 µs:
+Here you can see the formed pulse at point B, nearly 5 V for 200 µs:
 
 ![Formed pulse at output point B](media/geiger-signal-formed.png)
 
