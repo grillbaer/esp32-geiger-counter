@@ -33,12 +33,15 @@ Feel free to use this project as a base for your own projects AT YOUR OWN RISK!
 # Geiger Tube Pulse Forming
 
 ![Pulse forming schematic](media/pulse-forming-schematic.png)
+
 The 5.6 M&#937; series resistor is split up to reduce the voltage on each of them. The diode partially removes the noise spikes from the high voltage circuit.
 
 This is the raw pulse at point A, about 2 V for 100 µs, then falling back to 0 V in the next several 100 µs. Remainings of the little noise spikes are still visible:
+
 ![Raw pulse at point A](media/geiger-signal-raw.png)
 
 Here you can see the formed pulsed at point B, nearly 5 V for 200 µs:
+
 ![Formed pulse at output point B](media/geiger-signal-formed.png)
 
 It is then feed into a 555 timer to further extend its duration for the ESP32 wake-up from low-power mode.
