@@ -44,4 +44,4 @@ Here you can see the formed pulsed at point B, nearly 5 V for 200 µs:
 
 ![Formed pulse at output point B](media/geiger-signal-formed.png)
 
-It is then feed into a 555 timer to further extend its duration for the ESP32 wake-up from low-power mode.
+It is then fed into a 555 timer to further extend its duration for the ESP32 wake-up from low-power mode.
