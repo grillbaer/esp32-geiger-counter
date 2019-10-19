@@ -15,7 +15,7 @@ Feel free to use this project as a base for your own projects AT YOUR OWN RISK!
 
 - Russian Geiger counter tube STS-6 (CTC-6) at 400 V with ~5 M&#937; series resistor
 - High voltage circuit from ArnoR at mikrocontroller.net https://www.mikrocontroller.net/topic/380666, schematic https://www.mikrocontroller.net/attachment/273334/HystereseStepUpTLC555-2.png. *Keep the high-voltage capacitor small to avoid dangerous charges! For safety avoid any contact with the high voltage parts!*
-- ~400 µs pulse generation using Geiger tube series resistors as voltage divider, high impedance input to darlington transistor and TLC 555 timer for rectangle pulse generation (schematic and pulses see below)
+- ~200 µs pulse generation using Geiger tube series resistors as voltage divider, high impedance input to darlington transistor and TLC 555 timer for rectangle pulse generation (schematic and pulses see below)
 - ESP32 board Wemos Lolin32
 - OLED 128x64 with controller SH1106 at I2C
 - Voltage supply from either USB or power supply or 3x 1.5V AAA batteries, circuit works stable from 3.0 V up to 5.0 V
