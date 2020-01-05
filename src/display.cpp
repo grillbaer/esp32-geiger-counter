@@ -30,9 +30,9 @@ void renderDigits(char uSphStr[16], char cpmStr[16])
 
 	y = 21;
 	u8g2.setFont(u8g2_font_4x6_tf);
-	w = u8g2.getStrWidth("µS/h");
+	w = u8g2.getStrWidth("\xB5S/h");
 	u8g2.setCursor(xUSph - w, y);
-	u8g2.print("µS/h");
+	u8g2.print("\xB5S/h");
 
 	w = u8g2.getStrWidth("cnt/min");
 	u8g2.setCursor(xCpm - w, y);
