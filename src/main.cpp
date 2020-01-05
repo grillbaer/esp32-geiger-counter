@@ -33,16 +33,26 @@ uint32_t sampleStart = 0;
 const int16_t ingestInterval = 60;
 int16_t ingestCountdown;
 
+const int watchdogTimeoutMicros = 40000000L;
+hw_timer_t *watchdogTimer = NULL;
+
 void pulse();
 uint32_t calcRemainingWait();
 boolean wifiSwitchOn();
 uint16_t takeSampleNoSleep();
 uint16_t takeSampleLowPower();
+void IRAM_ATTR watchdogExpired();
 
 void setup()
 {
 	Serial.begin(921600);
 	Serial.println("Starting!");
+
+	// initialize watchdog timer
+	watchdogTimer = timerBegin(0, 80, true);
+	timerAttachInterrupt(watchdogTimer, &watchdogExpired, true);
+	timerAlarmWrite(watchdogTimer, watchdogTimeoutMicros, false);
+	timerAlarmEnable(watchdogTimer);
 
 	// OLED
 	initDisplay();
@@ -55,7 +65,6 @@ void setup()
 
 	// WiFi switch input
 	pinMode(WIFI_SWITCH_PIN, INPUT_PULLUP);
-
 	if (wifiSwitchOn())
 	{
 		initIngest();
@@ -68,11 +77,13 @@ void setup()
 
 void loop()
 {
-
 	// blinky
 
 	digitalWrite(LED_BUILTIN, blinky);
 	blinky = !blinky;
+
+	// reset watchdog
+	timerWrite(watchdogTimer, 0);
 
 	const uint16_t pulses =
 		wifiSwitchOn() ? takeSampleNoSleep() : takeSampleLowPower();
@@ -220,4 +231,9 @@ uint16_t takeSampleLowPower()
 	intPulseCount = 0;
 
 	return pulses;
+}
+
+void IRAM_ATTR watchdogExpired()
+{
+	esp_restart();
 }
