@@ -28,7 +28,7 @@ Feel free to use this project as a base for your own projects AT YOUR OWN RISK!
 - [PlatformIO VSCode project](https://github.com/platformio/platformio-vscode-ide) using [Arduino](https://github.com/arduino/Arduino) library, [Espressif ESP-IDF](https://github.com/espressif/esp-idf) for sleep functions and [U8g2](https://github.com/olikraus/u8g2) for display output
 - Low-power mode uses light sleep, a wake-up for each signal pulse change and a wake-up every 1000 ms to update pulse statistics and OLED. This results in about 90% sleep. Could be improved using deep sleep and ULP. However, light sleep is already quite good and much easier.
 - WiFi mode uses no sleep and simple interrupts for pulse counting. Pulse statistics and OLED are updated every 1000 ms, data is sent to thingspeak every 60 s.
-- Credentials (WiFi SSID, password, thingspeak channel key) are declared in `credentials.h` and defined with dummy values in `credentials.cpp`. Define them in a sibling file named `secret_credentials` (which is never committed) and uncomment its include in `credentials.cpp`
+- Credentials (WiFi SSID, password, thingspeak channel key) are declared in `credentials.h` and replaced by dummy values in `credentials.cpp` by default. Define your real secrets in a sibling file named `secret_credentials.h` (which is never committed!). It will automatically be included by `credentials.cpp` if it exists.
 
 # Geiger Tube Pulse Forming
 
