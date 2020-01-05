@@ -45,7 +45,7 @@ void IRAM_ATTR watchdogExpired();
 
 void setup()
 {
-	Serial.begin(921600);
+	Serial.begin(115200);
 	Serial.println("Starting!");
 
 	// initialize watchdog timer
