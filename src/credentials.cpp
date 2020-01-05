@@ -1,7 +1,9 @@
 #include "credentials.h"
 
+#if __has_include("secret_credentials.h")
 // keep secret credentials in an external file that is never committed:
-// #include "secret_credentials"
+#include "secret_credentials.h"
+#endif
 
 #ifndef _SECRET_CREDENTIALS
 
