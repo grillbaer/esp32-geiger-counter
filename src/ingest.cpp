@@ -35,6 +35,12 @@ bool connect()
 	return WiFi.status() == WL_CONNECTED;
 }
 
+void disconnect()
+{
+	Serial.println("Disconnecting WiFi");
+	WiFi.disconnect(true, true);
+}
+
 void initIngest()
 {
 	connect();
@@ -44,8 +50,7 @@ void deinitIngest()
 {
 	if (WiFi.status() == WL_CONNECTED)
 	{
-		Serial.println("Disconnecting WiFi");
-		WiFi.disconnect(true, true);
+		disconnect();
 	}
 }
 
@@ -60,9 +65,12 @@ void ingest(GeigerData &geigerData, uint16_t intervalSamples)
 		Serial.print("Connecting to ");
 		Serial.print(thingsPeakUrl);
 		Serial.println(" failed");
+		// disconnect from WiFi to trigger fresh connect on next ingest
+		disconnect();
 	}
 	else
 	{
+		client.setTimeout(30);
 
 		const uint32_t pulses = geigerData.getPreviousPulses(1,
 															 intervalSamples);
