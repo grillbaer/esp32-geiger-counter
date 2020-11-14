@@ -179,7 +179,7 @@ void ingestToMqtt(GeigerData &geigerData, uint16_t intervalSamples)
 		const float uSph = geigerData.toMicroSievertPerHour(pulses,
 															intervalSamples);
 		char payload[129];
-		sprintf(payload, "{\"pulses\":%lu, \"cpm\":%lu,\"uSph\":%.2f,\"secs\":%d}",
+		sprintf(payload, "{\"pulses\":%lu, \"cpm\":%lu,\"uSph\":%.3f,\"secs\":%d}",
 				pulses, cpm, uSph, (int)intervalSamples);
 
 		mqttClient.publish(mqttTopic, payload);
