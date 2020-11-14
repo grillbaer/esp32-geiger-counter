@@ -97,7 +97,8 @@ void loop()
 		if (ingestCountdown <= 0)
 		{
 			ingestCountdown = ingestInterval;
-			ingest(geigerData, ingestInterval);
+			ingestToThingspeak(geigerData, ingestInterval);
+			ingestToMqtt(geigerData, ingestInterval);
 		}
 	}
 	else

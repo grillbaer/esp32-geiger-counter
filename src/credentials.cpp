@@ -10,6 +10,12 @@
 // use dummy credentials to make it compilable without secrets
 const char *wifiSsid = "unset-wifi-ssid";
 const char *wifiPassword = "unset-password";
-const char *thingspeakApiKey = "unset-thinkspeak-api-key";
+const char *thingspeakApiKey = ""; // empty to disable thinkspeak
+
+const char *mqttHost = ""; // empty to disable MQTT
+int mqttPort = 1833;
+const char *mqttUser = "user";
+const char *mqttPassword = "unset-password";
+const char *mqttTopic = "home/geiger/radioactivity";
 
 #endif

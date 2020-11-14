@@ -1,13 +1,15 @@
 [![Build Status](https://travis-ci.org/grillbaer/esp32-geiger-counter.svg?branch=master)](https://travis-ci.org/grillbaer/esp32-geiger-counter)
 
-# IoT Geiger Counter with ESP32, OLED Display and Thingspeak Channel
+# IoT Geiger Counter with ESP32, OLED Display, Thingspeak Channel and MQTT
 
 - Measures radioactive gamma and beta radiation with quite good resolution at the typical low levels of the natural radiation (due to the big STS-6 tube)
 - Displays the current counts per minute (CPM), estimated dose equivalent rate in micro-Sievert per hour (µS/h) and 10 minutes history with 5 second resolution as bargraph
 ![Circuit Board](media/geiger-counter-pcb.jpg)
 - Low-power mode for use with batteries, OLED display and click sounds on, WiFi off
-- WiFi mode for thingspeak data upload every minute, see https://thingspeak.com/channels/758223
+- WiFi mode for
+  - optional thingspeak data upload every minute, see https://thingspeak.com/channels/758223
 [![https://thingspeak.com/channels/758223](media/thingspeak.png)](https://thingspeak.com/channels/758223)
+  - MQTT publishing to a broker every minute
 
 Feel free to use this project as a base for your own projects AT YOUR OWN RISK!
 
@@ -25,10 +27,22 @@ Feel free to use this project as a base for your own projects AT YOUR OWN RISK!
 
 # Software
 
-- [PlatformIO VSCode project](https://github.com/platformio/platformio-vscode-ide) using [Arduino](https://github.com/arduino/Arduino) library, [Espressif ESP-IDF](https://github.com/espressif/esp-idf) for sleep functions and [U8g2](https://github.com/olikraus/u8g2) for display output
+- [PlatformIO VSCode project](https://github.com/platformio/platformio-vscode-ide) using [Arduino](https://github.com/arduino/Arduino) library, [Espressif ESP-IDF](https://github.com/espressif/esp-idf) for sleep functions, [U8g2](https://github.com/olikraus/u8g2) for display output and [Arduino-MQTT](https://github.com/256dpi/arduino-mqtt).
 - Low-power mode uses light sleep, a wake-up for each signal pulse change and a wake-up every 1000 ms to update pulse statistics and OLED. This results in about 90% sleep. Could be improved using deep sleep and ULP. However, light sleep is already quite good and much easier.
 - WiFi mode uses no sleep and simple interrupts for pulse counting. Pulse statistics and OLED are updated every 1000 ms, data is sent to thingspeak every 60 s.
-- Credentials (WiFi SSID, password, thingspeak channel key) are declared in `credentials.h` and replaced by dummy values in `credentials.cpp` by default. Define your real secrets in a sibling file named `secret_credentials.h` (which is never committed!). It will automatically be included by `credentials.cpp` if it exists.
+- Credentials, addresses and user for WiFi, thingspeak channel and mqtt broker are declared in `credentials.h` and replaced by dummy values in `credentials.cpp` by default. Define your real secrets in a sibling file named `secret_credentials.h` (do never committed!). It will automatically be included by `credentials.cpp` if it exists. You may copy `TEMPLATE_secret_credentials.h` as a starting point.
+
+# MQTT Message Format
+
+Published messages have the following JSON format:
+```json
+{
+  "pulses": 69,
+  "cpm": 69,
+  "uSph": 0.08,
+  "secs": 60
+}
+```
 
 # Geiger Tube Pulse Forming
 

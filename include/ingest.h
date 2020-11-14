@@ -5,6 +5,7 @@
 
 void initIngest();
 void deinitIngest();
-void ingest(GeigerData &geigerData, uint16_t intervalSamples);
+void ingestToThingspeak(GeigerData &geigerData, uint16_t intervalSamples);
+void ingestToMqtt(GeigerData &geigerData, uint16_t intervalSamples);
 
 #endif /* INGEST_H_ */

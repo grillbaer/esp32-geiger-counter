@@ -1,4 +1,5 @@
 #include <WiFi.h>
+#include <MQTT.h>
 
 #include "GeigerData.h"
 
@@ -6,10 +7,13 @@
 
 const char *thingsPeakUrl = "api.thingspeak.com";
 
-bool connect()
+WiFiClient mqttWifiClient;
+MQTTClient mqttClient;
+
+bool connectWiFi()
 {
-	uint16_t retries = 3;
-	while (WiFi.status() != WL_CONNECTED && (--retries) > 0)
+	uint16_t retries = 10;
+	while (WiFi.status() != WL_CONNECTED && (retries--) > 0)
 	{
 		Serial.print("Trying to connect to ");
 		Serial.print(wifiSsid);
@@ -35,7 +39,7 @@ bool connect()
 	return WiFi.status() == WL_CONNECTED;
 }
 
-void disconnect()
+void disconnectWiFi()
 {
 	Serial.println("Disconnecting WiFi");
 	WiFi.disconnect(true, true);
@@ -43,20 +47,23 @@ void disconnect()
 
 void initIngest()
 {
-	connect();
+	connectWiFi();
 }
 
 void deinitIngest()
 {
 	if (WiFi.status() == WL_CONNECTED)
 	{
-		disconnect();
+		disconnectWiFi();
 	}
 }
 
-void ingest(GeigerData &geigerData, uint16_t intervalSamples)
+void ingestToThingspeak(GeigerData &geigerData, uint16_t intervalSamples)
 {
-	if (!connect())
+	if (!connectWiFi())
+		return;
+
+	if (thingsPeakUrl == NULL || thingsPeakUrl[0] == 0)
 		return;
 
 	WiFiClient client;
@@ -66,7 +73,7 @@ void ingest(GeigerData &geigerData, uint16_t intervalSamples)
 		Serial.print(thingsPeakUrl);
 		Serial.println(" failed");
 		// disconnect from WiFi to trigger fresh connect on next ingest
-		disconnect();
+		disconnectWiFi();
 	}
 	else
 	{
@@ -121,5 +128,60 @@ void ingest(GeigerData &geigerData, uint16_t intervalSamples)
 		Serial.println();
 
 		client.stop();
+	}
+}
+
+bool connectMqtt()
+{
+	if (!connectWiFi())
+		return false;
+
+	if (mqttHost == NULL || mqttHost[0] == 0)
+		return false;
+
+	if (!mqttClient.connected())
+	{
+		Serial.print("Connecting to MQTT host ");
+		Serial.print(mqttHost);
+		Serial.print(":");
+		Serial.print(mqttPort);
+		Serial.print(" user ");
+		Serial.print(mqttUser);
+		mqttClient.begin(mqttHost, mqttPort, mqttWifiClient);
+		if (mqttClient.connect("esp32-geiger-counter", mqttUser, mqttPassword))
+		{
+			Serial.println(" successful");
+		}
+		else
+		{
+			Serial.println(" failed");
+			// disconnect from WiFi to trigger fresh connect on next ingest
+			disconnectWiFi();
+			return false;
+		}
+	}
+
+	return true;
+}
+
+void disconnectMqtt()
+{
+	mqttClient.disconnect();
+}
+
+void ingestToMqtt(GeigerData &geigerData, uint16_t intervalSamples)
+{
+	if (connectMqtt())
+	{
+		const unsigned long pulses = geigerData.getPreviousPulses(1,
+																  intervalSamples);
+		const unsigned long cpm = (unsigned long)(pulses / ((float)intervalSamples * geigerData.sampleSeconds / 60.) + 0.5);
+		const float uSph = geigerData.toMicroSievertPerHour(pulses,
+															intervalSamples);
+		char payload[129];
+		sprintf(payload, "{\"pulses\":%lu, \"cpm\":%lu,\"uSph\":%.2f,\"secs\":%d}",
+				pulses, cpm, uSph, (int)intervalSamples);
+
+		mqttClient.publish(mqttTopic, payload);
 	}
 }
