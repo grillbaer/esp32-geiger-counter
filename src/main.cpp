@@ -93,6 +93,7 @@ void loop()
 
 	if (wifiSwitchOn())
 	{
+		loopIngest();
 		ingestCountdown--;
 		if (ingestCountdown <= 0)
 		{

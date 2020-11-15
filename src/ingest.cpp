@@ -50,6 +50,14 @@ void initIngest()
 	connectWiFi();
 }
 
+void loopIngest()
+{
+	if (mqttClient.connected())
+	{
+		mqttClient.loop();
+	}
+}
+
 void deinitIngest()
 {
 	if (WiFi.status() == WL_CONNECTED)
@@ -182,6 +190,9 @@ void ingestToMqtt(GeigerData &geigerData, uint16_t intervalSamples)
 		sprintf(payload, "{\"pulses\":%lu, \"cpm\":%lu,\"uSph\":%.3f,\"secs\":%d}",
 				pulses, cpm, uSph, (int)intervalSamples);
 
-		mqttClient.publish(mqttTopic, payload);
+		if (!mqttClient.publish(mqttTopic, payload))
+		{
+			mqttClient.disconnect();
+		}
 	}
 }

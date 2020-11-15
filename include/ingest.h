@@ -4,6 +4,7 @@
 #include "GeigerData.h"
 
 void initIngest();
+void loopIngest();
 void deinitIngest();
 void ingestToThingspeak(GeigerData &geigerData, uint16_t intervalSamples);
 void ingestToMqtt(GeigerData &geigerData, uint16_t intervalSamples);
