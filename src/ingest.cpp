@@ -1,4 +1,5 @@
 #include <WiFi.h>
+#include <WiFiClientSecure.h>
 #include <MQTT.h>
 
 #include "GeigerData.h"
@@ -8,6 +9,7 @@
 const char *thingsPeakUrl = "api.thingspeak.com";
 
 WiFiClient mqttWifiClient;
+WiFiClientSecure mqttWifiClientSecure;
 MQTTClient mqttClient;
 
 bool connectWiFi()
@@ -149,13 +151,22 @@ bool connectMqtt()
 
 	if (!mqttClient.connected())
 	{
+		const bool tls = mqttTlsServerRootCert != NULL && mqttTlsServerRootCert[0] != 0;
 		Serial.print("Connecting to MQTT host ");
 		Serial.print(mqttHost);
 		Serial.print(":");
 		Serial.print(mqttPort);
 		Serial.print(" user ");
 		Serial.print(mqttUser);
-		mqttClient.begin(mqttHost, mqttPort, mqttWifiClient);
+		if (tls) {
+			Serial.print(" with TLS ");
+			mqttWifiClientSecure.setCACert(mqttTlsServerRootCert);
+			mqttClient.begin(mqttHost, mqttPort, mqttWifiClientSecure);
+		} else {
+			Serial.print(" without TLS ");
+			mqttClient.begin(mqttHost, mqttPort, mqttWifiClient);
+		}
+
 		if (mqttClient.connect("esp32-geiger-counter", mqttUser, mqttPassword))
 		{
 			Serial.println(" successful");
