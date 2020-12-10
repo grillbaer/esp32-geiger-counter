@@ -14,6 +14,7 @@ const char *thingspeakApiKey = ""; // empty to disable thinkspeak
 
 const char *mqttHost = ""; // empty to disable MQTT
 int mqttPort = 1833;
+extern const char *mqttTlsServerRootCert = "";  // empty to disable TLS
 const char *mqttUser = "user";
 const char *mqttPassword = "unset-password";
 const char *mqttTopic = "home/geiger/radioactivity";
