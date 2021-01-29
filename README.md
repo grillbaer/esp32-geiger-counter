@@ -59,3 +59,10 @@ This is the formed pulse at point B, from 5 V to about 0.5 V for 200 µs:
 ![Formed pulse at output point B](media/geiger-signal-formed.png)
 
 It is then fed into a 555 timer to further extend its duration for the ESP32 wake-up from low-power mode.
+
+# DRAFT Circuit Sketch - Schematics
+
+This is a draft version of the circuit sketch, drawn with KiCad, files are in folder `hardware`.
+It may still contain errors since I've quickly drawn it from my head and from re-engineering the breadboard above.
+
+![Schematics](media/kicad-circuit-sketch.png)

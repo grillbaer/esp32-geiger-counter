@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP MPSA44
+D 0.5A Ic, 400V Vce, NPN High Voltage Transistor, TO-92
+K NPN High Voltage Transistor
+F http://www.onsemi.com/pub_link/Collateral/MPSA42-D.PDF
+$ENDCMP
+#
+#End Doc Library
