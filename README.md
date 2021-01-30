@@ -60,9 +60,8 @@ This is the formed pulse at point B, from 5 V to about 0.5 V for 200 µs:
 
 It is then fed into a 555 timer to further extend its duration for the ESP32 wake-up from low-power mode.
 
-# DRAFT Circuit Sketch - Schematics
+# Schematic
 
-This is a draft version of the circuit sketch, drawn with KiCad, files are in folder `hardware`.
-It may still contain errors since I've quickly drawn it from my head and from reverse-engineering the breadboard above.
+KiCad files are located in folder `hardware`. Currently only schematic, no PCB.
 
 ![Schematics](media/kicad-circuit-sketch.png)
