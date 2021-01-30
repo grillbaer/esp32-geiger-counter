@@ -5,7 +5,7 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title "ESP32 Geiger Counter"
-Date "2021-01-29"
+Date "2021-01-30"
 Rev ""
 Comp "Holger Fleischmann"
 Comment1 ""
@@ -265,8 +265,6 @@ Connection ~ 1050 3000
 Wire Wire Line
 	2950 1750 2950 1650
 Wire Wire Line
-	2950 1650 1050 1650
-Wire Wire Line
 	1050 1650 1050 1950
 Wire Wire Line
 	4150 3750 3050 3750
@@ -506,8 +504,6 @@ F 3 "~" H 3250 1650 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	3100 1650 2950 1650
-Wire Wire Line
-	3550 2150 3550 2200
 Wire Wire Line
 	3400 2150 3550 2150
 Wire Wire Line
@@ -895,17 +891,6 @@ F 3 "" H 5800 6350 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	2700 5700 2450 5700
-$Comp
-L Jumper:Jumper_2_Bridged JP2
-U 1 1 60343981
-P 2250 5700
-F 0 "JP2" H 2250 5895 50  0000 C CNN
-F 1 "WLAN on" H 2250 5804 50  0000 C CNN
-F 2 "" H 2250 5700 50  0001 C CNN
-F 3 "~" H 2250 5700 50  0001 C CNN
-	1    2250 5700
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	5050 6800 5200 6800
 Connection ~ 5050 6800
@@ -995,6 +980,143 @@ Wire Wire Line
 Connection ~ 4900 5600
 Wire Wire Line
 	4900 5600 5450 5600
-Text Notes 1550 4500 0    236  ~ 0
-CIRCUIT SKETCH NOT YET CHECKED FOR MISTAKES!
+Text Notes 7150 2350 0    50   ~ 0
+pulse\napprox. 200us\nlow 0 V
+Text Notes 10550 2350 0    50   ~ 0
+pulse\napprox. 400us\nhigh VCC
+Wire Wire Line
+	3550 2150 3550 2250
+NoConn ~ 2700 5200
+NoConn ~ 2700 5300
+NoConn ~ 2700 5400
+NoConn ~ 2700 5500
+NoConn ~ 2700 5600
+NoConn ~ 2700 5800
+NoConn ~ 2700 5900
+NoConn ~ 2700 6000
+NoConn ~ 2700 6100
+NoConn ~ 2700 6200
+NoConn ~ 2700 6300
+NoConn ~ 2700 6400
+NoConn ~ 2700 6500
+NoConn ~ 2700 6700
+NoConn ~ 2700 6800
+NoConn ~ 4600 5200
+NoConn ~ 4600 5400
+NoConn ~ 4600 5500
+NoConn ~ 4600 5800
+NoConn ~ 4600 5900
+NoConn ~ 4600 6000
+NoConn ~ 4600 6100
+NoConn ~ 4600 6200
+NoConn ~ 4600 6300
+NoConn ~ 4600 6400
+NoConn ~ 4600 6500
+NoConn ~ 4600 6600
+NoConn ~ 4600 6700
+NoConn ~ 4600 7000
+NoConn ~ 2700 7000
+NoConn ~ 2700 7100
+NoConn ~ 4600 7100
+$Comp
+L power:GND #PWR0101
+U 1 1 601D64A6
+P 1950 5800
+F 0 "#PWR0101" H 1950 5550 50  0001 C CNN
+F 1 "GND" H 1955 5627 50  0000 C CNN
+F 2 "" H 1950 5800 50  0001 C CNN
+F 3 "" H 1950 5800 50  0001 C CNN
+	1    1950 5800
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2050 5700 1950 5700
+Wire Wire Line
+	1950 5700 1950 5800
+$Comp
+L Jumper:Jumper_2_Bridged JP2
+U 1 1 60343981
+P 2250 5700
+F 0 "JP2" H 2250 5895 50  0000 C CNN
+F 1 "WiFi on" H 2250 5804 50  0000 C CNN
+F 2 "" H 2250 5700 50  0001 C CNN
+F 3 "~" H 2250 5700 50  0001 C CNN
+	1    2250 5700
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1050 1650 2950 1650
+$Comp
+L power:GND #PWR024
+U 1 1 601E1EB9
+P 7750 5400
+F 0 "#PWR024" H 7750 5150 50  0001 C CNN
+F 1 "GND" H 7755 5227 50  0000 C CNN
+F 2 "" H 7750 5400 50  0001 C CNN
+F 3 "" H 7750 5400 50  0001 C CNN
+	1    7750 5400
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:VCC #PWR023
+U 1 1 601E23DB
+P 7750 5100
+F 0 "#PWR023" H 7750 4950 50  0001 C CNN
+F 1 "VCC" H 7765 5273 50  0000 C CNN
+F 2 "" H 7750 5100 50  0001 C CNN
+F 3 "" H 7750 5100 50  0001 C CNN
+	1    7750 5100
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector:Screw_Terminal_01x02 J3
+U 1 1 601E2CC3
+P 7200 5300
+F 0 "J3" H 7200 5100 50  0000 C CNN
+F 1 "Power in" H 7500 5250 50  0000 C CNN
+F 2 "" H 7200 5300 50  0001 C CNN
+F 3 "~" H 7200 5300 50  0001 C CNN
+	1    7200 5300
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	7400 5300 7500 5300
+$Comp
+L power:GNDPWR #PWR0102
+U 1 1 601FD717
+P 7500 5400
+F 0 "#PWR0102" H 7500 5200 50  0001 C CNN
+F 1 "GNDPWR" H 7504 5246 50  0000 C CNN
+F 2 "" H 7500 5350 50  0001 C CNN
+F 3 "" H 7500 5350 50  0001 C CNN
+	1    7500 5400
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:PWR_FLAG #FLG0101
+U 1 1 601FEC15
+P 7500 5100
+F 0 "#FLG0101" H 7500 5175 50  0001 C CNN
+F 1 "PWR_FLAG" H 7500 5273 50  0000 C CNN
+F 2 "" H 7500 5100 50  0001 C CNN
+F 3 "~" H 7500 5100 50  0001 C CNN
+	1    7500 5100
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7500 5400 7500 5300
+Connection ~ 7500 5300
+Wire Wire Line
+	7400 5200 7500 5200
+Wire Wire Line
+	7500 5100 7500 5200
+Connection ~ 7500 5200
+Wire Wire Line
+	7750 5200 7750 5100
+Wire Wire Line
+	7500 5200 7750 5200
+Wire Wire Line
+	7750 5300 7750 5400
+Wire Wire Line
+	7500 5300 7750 5300
 $EndSCHEMATC
