@@ -63,6 +63,6 @@ It is then fed into a 555 timer to further extend its duration for the ESP32 wak
 # DRAFT Circuit Sketch - Schematics
 
 This is a draft version of the circuit sketch, drawn with KiCad, files are in folder `hardware`.
-It may still contain errors since I've quickly drawn it from my head and from re-engineering the breadboard above.
+It may still contain errors since I've quickly drawn it from my head and from reverse-engineering the breadboard above.
 
 ![Schematics](media/kicad-circuit-sketch.png)
