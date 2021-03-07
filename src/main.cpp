@@ -14,7 +14,7 @@
 #define WIFI_SWITCH_PIN 4
 
 // blinky LED
-#define BLINKY_LED_PIN 19
+#define BLINKY_LED_PIN 18
 
 // Keep 600 samples of 1s in history (10 minutes),
 // calculate radiation for russian STS-6 ("CTC-6") Geiger tube
