@@ -7,11 +7,14 @@
 #include "GeigerData.h"
 
 // ~400µs high pulses from Geiger tube on GPIO 18
-#define PULSE_PIN 18
-#define PULSE_GPIO GPIO_NUM_18
+#define PULSE_PIN 15
+#define PULSE_GPIO GPIO_NUM_15
 
 // switch input for WiFi on (low) and off (high)
 #define WIFI_SWITCH_PIN 4
+
+// blinky LED
+#define BLINKY_LED_PIN 19
 
 // Keep 600 samples of 1s in history (10 minutes),
 // calculate radiation for russian STS-6 ("CTC-6") Geiger tube
@@ -58,7 +61,7 @@ void setup()
 	initDisplay();
 
 	// blinky
-	pinMode(LED_BUILTIN, OUTPUT);
+	pinMode(BLINKY_LED_PIN, OUTPUT);
 
 	// Geiger pulse input
 	pinMode(PULSE_PIN, INPUT);
@@ -79,7 +82,7 @@ void loop()
 {
 	// blinky
 
-	digitalWrite(LED_BUILTIN, blinky);
+	digitalWrite(BLINKY_LED_PIN, blinky);
 	blinky = !blinky;
 
 	// reset watchdog

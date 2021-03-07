@@ -21,9 +21,10 @@ Feel free to use this project as a base for your own projects AT YOUR OWN RISK!
 - ESP32 board Wemos Lolin32
 - OLED 128x64 with controller SH1106 at I2C
 - Voltage supply from either USB or power supply or 3x 1.5V AAA batteries, circuit works stable from 3.0 V up to 5.0 V
-- Pulse input is expected at GPIO 18 (high pulses with at least about 250 µs length)
+- Pulse input is expected at GPIO 15 (high pulses with at least about 250 µs length)
 - Switch for WiFi mode is expected at GPIO 4 (low=WiFi mode, high=low-power mode)
 - OLED I2C bus is expected at GPIO 22 (SCK) and 21 (SDA)
+- Pins may be adjusted in `main.cpp`
 
 # Software
 
