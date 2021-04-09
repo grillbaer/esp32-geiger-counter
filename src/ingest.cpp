@@ -14,6 +14,8 @@ MQTTClient mqttClient;
 
 bool connectWiFi()
 {
+	WiFi.persistent(false);
+
 	uint16_t retries = 10;
 	while (WiFi.status() != WL_CONNECTED && (retries--) > 0)
 	{
